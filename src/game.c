@@ -39,19 +39,43 @@ void Display(char board[ROWS][COLS]) {
     printf("1 2 3 4 5 6 7\n");
 }
 
-int MakeMove(char b[ROWS][COLS], int col){
-    //TO DO
-    /*Returns:
-
-0 → success
-
--1 → invalid column
-
--2 → column full*/
+int MakeMove(char b[ROWS][COLS], int col){ 
+    if(col < 1 || col > COLS){  
+        return -1;
+    }
+    int c = col - 1;  
+    if(DiscsPerIndex[c] >= ROWS){  
+        return -2;
+    }
+    int row = ROWS - DiscsPerIndex[c] - 1;
+    b[row][c] = currentPlayer;
+    DiscsPerIndex[c]++;
+    return 0;  
 }
 
 int CheckWin(char b[ROWS][COLS], int lastRow, int lastCol){
-    //TO DO
+    char player = b[lastRow][lastCol];
+    if(player == '.') return 0;
+    int dirs[4][2] = {{0,1},{1,0},{1,1},{1,-1}};
+    for(int d=0; d<4; d++){
+        int count = 1;
+        int dr = dirs[d][0], dc = dirs[d][1];
+        int r = lastRow + dr, c = lastCol + dc;
+        while(r>=0 && r<ROWS && c>=0 && c<COLS && b[r][c]==player){
+            count++;
+            r += dr; c += dc;
+        }
+        r = lastRow - dr; c = lastCol - dc;
+        while(r>=0 && r<ROWS && c>=0 && c<COLS && b[r][c]==player){
+            count++;
+            r -= dr; c -= dc;
+        }
+        if(count >= 4){
+            return 1;
+        }
+    }
+    return 0;
+    
 }
 int FullBoard(char b[ROWS][COLS]){
     for(int i=0; i<COLS; i++){
