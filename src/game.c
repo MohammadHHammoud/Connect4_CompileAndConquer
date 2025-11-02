@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 #include "game.h"
 
 char Board[ROWS][COLS];
@@ -9,9 +10,19 @@ int DiscsPerIndex[COLS] = {0, 0, 0, 0, 0, 0, 0};
 char playerA = 'A';
 char playerB = 'B';
 char currentPlayer = 'A';
+int gameMode = 1;
+int difficulty = 1;
 
 void InitializeGame(char board[ROWS][COLS]){
-    printf("Welcome to Connect Four!\nPlayer A: ");
+    printf("Welcome to Connect Four!\n   1) Multiplayer\n   2) Single Player\nSelect an option [1-2]:");
+    int option;
+    scanf("%d", &option);
+    while(option != 1 && option != 2){
+        printf("Invalid option. Please select 1 or 2: ");
+        scanf("%d", &option);
+    }
+    if(option == 1){
+    printf("Player A: " );
     scanf(" %c", &playerA); 
     playerA = toupper(playerA);
     printf("Player B: " );
@@ -23,6 +34,27 @@ void InitializeGame(char board[ROWS][COLS]){
         playerB = toupper(playerB);
     }
     currentPlayer = playerA;
+    } else {
+        gameMode = 2;
+        printf("Difficulty Levels:\n    1) Easy\n    2) Medium\n    3) Hard\nSelect a difficulty level [1-3]: ");
+        int dif;
+        scanf("%d", &dif);
+        while(dif < 1 || dif > 3){
+            printf("Invalid option. Please select a difficulty level [1-3]: ");
+            scanf("%d", &dif);
+        }
+        if(dif==3){
+            printf("Hard difficulty not yet implemented. Defaulting to Medium difficulty.\n");
+            dif = 2;
+        }
+        difficulty = dif;
+        printf("Enter your preferred character: ");
+        scanf(" %c", &playerA);
+        playerA = toupper(playerA);
+        if(playerA != 'C') playerB = 'C';
+        else playerB = 'E';
+        currentPlayer = playerA;
+    }
     initializeBoard(board);
     Display(board);
 }
@@ -47,18 +79,65 @@ void Display(char board[ROWS][COLS]) {
 }
 
 int MakeMove(char b[ROWS][COLS], int col){ 
-    col++;
-    if(col < 1 || col > COLS){  
-        return -1;
+    if(gameMode == 2 && currentPlayer == playerB){ 
+        col=MakeMoveAI(b, col, difficulty)+1;
+    } else {
+        col++;
+        if(col < 1 || col > COLS){  
+            return -1;
+        }
     }
-    int c = col - 1;  
-    if(DiscsPerIndex[c] >= ROWS){  
+    if(DiscsPerIndex[col-1] >= ROWS){  
         return -2;
     }
-    int row = ROWS - DiscsPerIndex[c] - 1;
-    b[row][c] = currentPlayer;
-    DiscsPerIndex[c]++;
+    int row = ROWS - DiscsPerIndex[col-1] - 1;
+    b[row][col-1] = currentPlayer;
+    DiscsPerIndex[col-1]++;
     return 0;  
+}
+
+int MakeMoveAI(char b[ROWS][COLS], int col, int difficulty){
+    if(difficulty == 1){
+        srand(time(NULL));
+        int c;
+        do{
+            c = rand() % COLS; 
+        }while (DiscsPerIndex[c] >= ROWS); 
+        return c;
+    }
+    if(difficulty == 2){
+        for(int c = 0; c<COLS; c++){
+            if(DiscsPerIndex[c]<ROWS){
+                int r = ROWS - DiscsPerIndex[c] - 1;
+                b[r][c] = playerB;
+                if(CheckWin(b, playerB)){
+                    b[r][c] = '.';
+                    return c;
+                }
+                b[r][c] = '.';
+            }
+        }
+        for(int c = 0; c<COLS; c++){
+            if(DiscsPerIndex[c]<ROWS){
+                int r = ROWS - DiscsPerIndex[c] - 1;
+                b[r][c] = playerA;
+                if(CheckWin(b, playerA)){
+                    b[r][c] = '.';
+                    return c;
+                }
+                b[r][c] = '.';
+            }
+        }
+        srand(time(NULL));
+        int c;
+        do{
+            c = rand() % COLS; 
+        }while (DiscsPerIndex[c] >= ROWS); 
+        return c;
+    }
+    if(difficulty == 3){
+        
+    }
 }
 
 int CheckWin(char board[ROWS][COLS],char symbol) {
@@ -114,10 +193,6 @@ int FullBoard(char b[ROWS][COLS]){
 }
 
 void SwitchPlayer(char *currentPlayer, char playerA, char playerB){
-    if(*currentPlayer == playerA){
-        *currentPlayer = playerB;
-    } else {
-        *currentPlayer = playerA;
-    }
+    *currentPlayer = (*currentPlayer == playerA) ? playerB : playerA;
 }
 

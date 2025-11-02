@@ -11,6 +11,9 @@ extern char playerA;
 extern char playerB;
 extern char currentPlayer;
 
+extern int gameMode;
+extern int difficulty;
+
 void InitializeGame(char b[ROWS][COLS]);
 
 void initializeBoard(char board[ROWS][COLS]);
@@ -18,6 +21,8 @@ void initializeBoard(char board[ROWS][COLS]);
 void Display(char b[ROWS][COLS]);
 
 int MakeMove(char b[ROWS][COLS], int col);
+
+int MakeMoveAI(char b[ROWS][COLS], int col, int difficulty);
 
 int CheckWin(char b[ROWS][COLS], char symbol);
 
