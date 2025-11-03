@@ -72,6 +72,7 @@ void InitializeGame(char board[ROWS][COLS]){
     currentPlayer = playerA;
     } else {
         gameMode = 2;
+        playerB = '@';
         printf("Difficulty Levels:\n    1) Easy\n    2) Medium\n    3) Hard\nSelect a difficulty level [1-3]: ");
         int dif;
         scanf("%d", &dif);
@@ -107,8 +108,6 @@ void InitializeGame(char board[ROWS][COLS]){
         case 7: colorA = 36; break;
         default: colorA = 37; break;
         }
-        if(playerA != 'C') playerB = 'C';
-        else playerB = 'E';
         currentPlayer = playerA;
     }
     initializeBoard(board);
