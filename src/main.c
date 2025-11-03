@@ -8,9 +8,9 @@ int main(){
     InitializeGame(Board);
     while (1){
         if(gameMode == 2 && currentPlayer == playerB){
-            int row = MakeMove(Board, -1);
+            MakeMove(Board, -1);
             Display(Board);
-            if (FullBoard(Board)){
+            if (FullBoard()){
                 printf("It is a draw!\n");
                 break;
             }
@@ -32,7 +32,7 @@ int main(){
             continue;
         } else {
             Display(Board);
-            if (FullBoard(Board)){
+            if (FullBoard()){
                 printf("It is a draw!\n");
                 break;
             }
