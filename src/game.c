@@ -15,7 +15,7 @@ int difficulty = 1;
 int colorA;
 int colorB;
 
-void InitializeGame(char board[ROWS][COLS]){
+void InitializeGame(){
     printf("Welcome to Connect Four!\n   1) Multiplayer\n   2) Single Player\nSelect an option [1-2]:");
     int option;
     scanf("%d", &option);
@@ -27,8 +27,9 @@ void InitializeGame(char board[ROWS][COLS]){
     printf("Player A: " );
     scanf(" %c", &playerA);
     playerA = toupper(playerA);
+    printf("Choose a color for player %c :\n", playerA);
+    printf("  1) White\n  \033[1;31m2) Red \033[0m\n  \033[1;32m3) Green \033[0m\n  \033[1;34m4) Blue \033[0m\n  \033[1;33m5) Yellow \033[0m\n  \033[1;35m6) Magenta \033[0m\n  \033[1;36m7) Cyan \033[0m\nSelect a number (1-7): ");
     int choiceA;
-    printf("Select a color for player %c (1-7) :\n1) White\n2) Red\n3) Green\n4) Blue\n5) Yellow\n6) Magenta\n7) Cyan\n", playerA);
     scanf("%d", &choiceA);
     while(choiceA < 1 || choiceA > 7){
         printf("Invalid input. Please select a number from 1 to 7:");
@@ -52,8 +53,9 @@ void InitializeGame(char board[ROWS][COLS]){
         scanf(" %c", &playerB);
         playerB = toupper(playerB);
     }
+    printf("Choose a color for player %c :\n", playerB);
+    printf("  1) White\n  \033[1;31m2) Red \033[0m\n  \033[1;32m3) Green \033[0m\n  \033[1;34m4) Blue \033[0m\n  \033[1;33m5) Yellow \033[0m\n  \033[1;35m6) Magenta \033[0m\n  \033[1;36m7) Cyan \033[0m\nSelect a number (1-7): ");
     int choiceB;
-    printf("Select a color for player %c (1-7) :\n1) White\n2) Red\n3) Green\n4) Blue\n5) Yellow\n6) Magenta\n7) Cyan\n", playerB);
     scanf("%d", &choiceB);
     while(choiceB < 1 || choiceB > 7){
         printf("Invalid input. Please select a number from 1 to 7:");
@@ -92,7 +94,8 @@ void InitializeGame(char board[ROWS][COLS]){
         scanf(" %c", &playerA);
         playerA = toupper(playerA);
         int choice;
-        printf("Select your color (1-7) :\n1) White\n2) Red\n3) Green\n4) Blue\n5) Yellow\n6) Magenta\n7) Cyan\n");
+        printf("Choose your color:\n  1) White\n  \033[1;31m2) Red \033[0m\n  \033[1;32m3) Green \033[0m\n  \033[1;34m4) Blue \033[0m\n  \033[1;33m5) Yellow \033[0m\n  \033[1;35m6) Magenta \033[0m\n  \033[1;36m7) Cyan \033[0m\n");
+        printf("Select a number (1-7): ");
         scanf("%d", &choice);
         while(choice < 1 || choice > 7){
             printf("Invalid input. Please select a number from 1 to 7:");
@@ -110,28 +113,28 @@ void InitializeGame(char board[ROWS][COLS]){
         }
         currentPlayer = playerA;
     }
-    initializeBoard(board);
-    Display(board);
+    initializeBoard();
+    Display();
 }
 
 
-void initializeBoard(char board[ROWS][COLS]) {
+void initializeBoard() {
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
-            board[i][j] = '.';
+            Board[i][j] = '.';
         }
     }
 }
 
-void Display(char board[ROWS][COLS]) {
+void Display(){
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
-            if(board[i][j] == playerA)
-                printf("\033[%dm%c \033[0m", colorA, board[i][j]);
-            else if(board[i][j] == playerB)
-                printf("\033[%dm%c \033[0m", colorB, board[i][j]);
+            if(Board[i][j] == playerA)
+                printf("\033[%dm%c \033[0m", colorA, Board[i][j]);
+            else if(Board[i][j] == playerB)
+                printf("\033[1;%dm%c \033[0m", colorB, Board[i][j]);
             else
-                printf("%c ", board[i][j]);
+                printf("%c ", Board[i][j]);
         }
         printf("\n");
     }

@@ -5,7 +5,7 @@
 #include "game.h"
 
 int main(){
-    InitializeGame(Board);
+    InitializeGame();
     while (1){
         if(gameMode == 2 && currentPlayer == playerB){
             MakeMove(Board, -1);

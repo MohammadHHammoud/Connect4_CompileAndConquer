@@ -16,11 +16,11 @@ extern char currentPlayer;
 extern int gameMode;
 extern int difficulty;
 
-void InitializeGame(char b[ROWS][COLS]);
+void InitializeGame();
 
-void initializeBoard(char board[ROWS][COLS]);
+void initializeBoard();
 
-void Display(char b[ROWS][COLS]);
+void Display();
 
 int MakeMove(char b[ROWS][COLS], int col);
 
