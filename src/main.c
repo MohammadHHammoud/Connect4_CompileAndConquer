@@ -8,22 +8,22 @@ int main(){
     InitializeGame();
     while (1){
         if(gameMode == 2 && currentPlayer == playerB){
-            MakeMove(Board, -1);
-            Display(Board);
+            MakeMove(-1);
+            Display();
             if (FullBoard()){
                 printf("It is a draw!\n");
                 break;
             }
-            if (CheckWin(Board, currentPlayer)){
+            if (CheckWin(currentPlayer)){
                     printf("Computer wins!\n");
                 break;
             }
-            SwitchPlayer(&currentPlayer, playerA, playerB);
+            SwitchPlayer();
         } else {
         printf("Player %c, choose a column (1-7): ", currentPlayer);
         int col;
         scanf("%d", &col);
-        int row = MakeMove(Board, col - 1);
+        int row = MakeMove(col - 1);
         if (row == -1){
             printf("Invalid column.\n");
             continue;
@@ -31,19 +31,19 @@ int main(){
             printf("Column %d is full. Try another.\n", col);
             continue;
         } else {
-            Display(Board);
+            Display();
             if (FullBoard()){
                 printf("It is a draw!\n");
                 break;
             }
-            if (CheckWin(Board, currentPlayer)){
+            if (CheckWin(currentPlayer)){
                 if(gameMode == 2)
                     printf("You win!\n");
                 else
                     printf("Player %c wins!\n", currentPlayer);
                 break;
             }
-            SwitchPlayer(&currentPlayer, playerA, playerB);
+            SwitchPlayer();
         }
     }
     }

@@ -3,22 +3,29 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
+#include <limits.h>
+#include <pthread.h>
 #include "game.h"
+
+#define legalMove(c) ( c >= 0 && c < COLS && DiscsPerIndex[(c)] < ROWS )
 
 char Board[ROWS][COLS];
 int DiscsPerIndex[COLS] = {0, 0, 0, 0, 0, 0, 0};
-char playerA = 'A';
-char playerB = 'B';
-char currentPlayer = 'A';
-int gameMode = 1;
-int difficulty = 1;
-int colorA;
-int colorB;
+int columnOrder[COLS]   = {3, 2, 4, 1, 5, 0, 6};
+char playerA, playerB, currentPlayer;
+int gameMode, difficulty, colorA, colorB;
 
 void InitializeGame(){
+    srand(time(NULL));
     printf("Welcome to Connect Four!\n   1) Multiplayer\n   2) Single Player\nSelect an option [1-2]:");
     int option;
-    scanf("%d", &option);
+    int s = scanf("%d", &option);
+    while (s==0)
+    {
+        printf("Please input a valid number: ");
+        s = scanf("%d", &option);
+    }
+    
     while(option != 1 && option != 2){
         printf("Invalid option. Please select 1 or 2: ");
         scanf("%d", &option);
@@ -85,10 +92,6 @@ void InitializeGame(){
         if(dif==1) colorB=34;
         else if(dif==2) colorB=32;
         else if(dif==3) colorB=31;
-        if(dif==3){
-            printf("Hard difficulty not yet implemented. Defaulting to Medium difficulty.\n");
-            dif = 2;
-        }
         difficulty = dif;
         printf("Enter your preferred character: ");
         scanf(" %c", &playerA);
@@ -141,9 +144,9 @@ void Display(){
     printf("1 2 3 4 5 6 7\n");
 }
 
-int MakeMove(char b[ROWS][COLS], int col){ 
+int MakeMove(int col){ 
     if(gameMode == 2 && currentPlayer == playerB){ 
-        col=MakeMoveAI(b, difficulty)+1;
+        col=MakeMoveAI()+1;
     } else {
         col++;
         if(col < 1 || col > COLS){  
@@ -154,14 +157,21 @@ int MakeMove(char b[ROWS][COLS], int col){
         return -2;
     }
     int row = ROWS - DiscsPerIndex[col-1] - 1;
-    b[row][col-1] = currentPlayer;
+    Board[row][col-1] = currentPlayer;
     DiscsPerIndex[col-1]++;
     return 0;  
 }
-
-int MakeMoveAI(char b[ROWS][COLS], int difficulty){
+static int ScoreWindow(int a, int o, int e) {
+    if (a && o) return 0;
+    if (a == 4) return 100000;
+    if (a == 3 && e == 1) return 180;
+    if (a == 2 && e == 2) return 20;
+    if (o == 3 && e == 1) return -170;
+    if (o == 2 && e == 2) return -18;
+    return 0;
+}
+int MakeMoveAI(){
     if(difficulty == 1){
-        srand(time(NULL));
         int c;
         do{
             c = rand() % COLS; 
@@ -170,88 +180,198 @@ int MakeMoveAI(char b[ROWS][COLS], int difficulty){
     }
     if(difficulty == 2){
         for(int c = 0; c<COLS; c++){
-            if(DiscsPerIndex[c]<ROWS){
-                int r = ROWS - DiscsPerIndex[c] - 1;
-                b[r][c] = playerB;
-                if(CheckWin(b, playerB)){
-                    b[r][c] = '.';
-                    return c;
-                }
-                b[r][c] = '.';
+            if(!legalMove(c)) continue;
+            int r = ROWS - DiscsPerIndex[c] - 1;
+            Board[r][c] = playerB;
+            if(CheckWin(playerB)){
+                Board[r][c] = '.';
+                return c;
             }
+            Board[r][c] = '.';
         }
         for(int c = 0; c<COLS; c++){
-            if(DiscsPerIndex[c]<ROWS){
-                int r = ROWS - DiscsPerIndex[c] - 1;
-                b[r][c] = playerA;
-                if(CheckWin(b, playerA)){
-                    b[r][c] = '.';
-                    return c;
-                }
-                b[r][c] = '.';
+            if(!legalMove(c)) continue;
+            int r = ROWS - DiscsPerIndex[c] - 1;
+            Board[r][c] = playerA;
+            if(CheckWin(playerA)){
+                Board[r][c] = '.';
+                return c;
             }
+            Board[r][c] = '.';
         }
-        srand(time(NULL));
         int c;
         do{
             c = rand() % COLS; 
-        }while (DiscsPerIndex[c] >= ROWS); 
+        } while (!legalMove(c)); 
         return c;
     }
-    /*if(difficulty == 3){
-        
-    }*/
-    srand(time(NULL));
-        int c;
-        do{
-            c = rand() % COLS; 
-        }while (DiscsPerIndex[c] >= ROWS); 
-        return c;
+    if(difficulty == 3){
+        for(int c = 0; c<COLS; c++){
+            if(!legalMove(c)) continue;
+            int r = ROWS - DiscsPerIndex[c] - 1;
+            Board[r][c] = playerB;
+            if(CheckWin(playerB)){
+                Board[r][c] = '.';
+                return c;
+            }
+            Board[r][c] = '.';
+        }
+        for(int c = 0; c<COLS; c++){
+            if(!legalMove(c)) continue;
+            int r = ROWS - DiscsPerIndex[c] - 1;
+            Board[r][c] = playerA;
+            if(CheckWin(playerA)){
+                Board[r][c] = '.';
+                return c;
+            }
+            Board[r][c] = '.';
+        }
+        for(int c = 0; c < COLS; c++){
+            if(!legalMove(c)) continue;
+            int r = ROWS - DiscsPerIndex[c] - 1;
+            Board[r][c] = playerB;
+            int wins = 0;
+            for(int c2 = 0; c2 < COLS && wins < 2; c2++){
+                int add = (c2 == c) ? 1 : 0;
+                if(DiscsPerIndex[c2] + add >= ROWS)
+                    continue;
+                int r2 = ROWS - (DiscsPerIndex[c2] + add) - 1;
+                Board[r2][c2] = playerB;
+                if(CheckWin(playerB))
+                    wins++;
+                Board[r2][c2] = '.';
+            }
+            Board[r][c] = '.';
+            if (wins >= 2)
+                return c;
+        }
+    int bestCol = -1;
+    int bestScore = -1000000000;
+    for (int oi = 0; oi < 7; ++oi) {
+        int c = columnOrder[oi];
+        if (!legalMove(c)) continue;
+        int r = ROWS - DiscsPerIndex[c] - 1;
+        Board[r][c] = playerB;
+        int oppCanWin = 0;
+        for (int oc = 0; oc < COLS && !oppCanWin; ++oc) {
+            int add = (oc == c) ? 1 : 0;
+            if (DiscsPerIndex[oc] + add >= ROWS) continue;
+            int orow = ROWS - (DiscsPerIndex[oc] + add) - 1;
+            Board[orow][oc] = playerA;
+            if (CheckWin(playerA)) oppCanWin = 1;
+            Board[orow][oc] = '.';
+        }
+        int s;
+        if (oppCanWin) {
+            s = -10000000;
+        } 
+        else {
+            s = 0;
+            for (int rr = 0; rr < ROWS; ++rr) {
+                if (Board[rr][3] == playerB) s += 6;
+                else if (Board[rr][3] == playerA) s -= 6;
+            }
+            for (int rr = 0; rr < ROWS; ++rr)
+                for (int cc = 0; cc <= COLS - 4; ++cc) {
+                    int a = 0, o = 0, e = 0;
+                    for (int k = 0; k < 4; k++) {
+                        char v = Board[rr][cc + k];
+                        if (v == playerB) a++;
+                        else if (v == playerA) o++;
+                        else e++;
+                    }
+                    s += ScoreWindow(a, o, e);
+                }
+            for (int cc = 0; cc < COLS; ++cc)
+                for (int rr = 0; rr <= ROWS - 4; ++rr) {
+                    int a = 0, o = 0, e = 0;
+                    for (int k = 0; k < 4; k++) {
+                        char v = Board[rr + k][cc];
+                        if (v == playerB) a++;
+                        else if (v == playerA) o++;
+                        else e++;
+                    }
+                    s += ScoreWindow(a, o, e);
+                }
+            for (int rr = 0; rr <= ROWS - 4; ++rr)
+                for (int cc = 0; cc <= COLS - 4; ++cc) {
+                    int a = 0, o = 0, e = 0;
+                    for (int k = 0; k < 4; k++) {
+                        char v = Board[rr + k][cc + k];
+                        if (v == playerB) a++;
+                        else if (v == playerA) o++;
+                        else e++;
+                    }
+                    s += ScoreWindow(a, o, e);
+                }
+            for (int rr = 3; rr < ROWS; ++rr)
+                for (int cc = 0; cc <= COLS - 4; ++cc) {
+                    int a = 0, o = 0, e = 0;
+                    for (int k = 0; k < 4; k++) {
+                        char v = Board[rr - k][cc + k];
+                        if (v == playerB) a++;
+                        else if (v == playerA) o++;
+                        else e++;
+                    }
+                    s += ScoreWindow(a, o, e);
+                }
+        }
+        Board[r][c] = '.';
+        if (s > bestScore) {
+            bestScore = s;
+            bestCol = c;
+        }
+    }
+    if (bestCol != -1) return bestCol;
+    if (bestCol == -1)
+            for (int c = 0; c < COLS; c++)
+                if (legalMove(c)) return columnOrder[c];
+   }
 }
-
-int CheckWin(char board[ROWS][COLS],char symbol) {
+int CheckWin(char player) {
     for (int r = 0; r < ROWS; r++) {
         for (int c = 0; c <= COLS - 4; c++) {
-            if (board[r][c] == symbol &&
-                board[r][c+1] == symbol &&
-                board[r][c+2] == symbol &&
-                board[r][c+3] == symbol) {
+            if (Board[r][c] == player &&
+                Board[r][c+1] == player &&
+                Board[r][c+2] == player &&
+                Board[r][c+3] == player) {
                 return 1;
             }
         }
     }
     for (int c = 0; c < COLS; c++) {
         for (int r = 0; r <= ROWS - 4; r++) {
-            if (board[r][c] == symbol &&
-                board[r+1][c] == symbol &&
-                board[r+2][c] == symbol &&
-                board[r+3][c] == symbol) {
+            if (Board[r][c] == player &&
+                Board[r+1][c] == player &&
+                Board[r+2][c] == player &&
+                Board[r+3][c] == player) {
                 return 1;
             }
         }
     }
     for (int r = 0; r <= ROWS - 4; r++) {
         for (int c = 0; c <= COLS - 4; c++) {
-            if (board[r][c] == symbol &&
-                board[r+1][c+1] == symbol &&
-                board[r+2][c+2] == symbol &&
-                board[r+3][c+3] == symbol) {
+            if (Board[r][c] == player &&
+                Board[r+1][c+1] == player &&
+                Board[r+2][c+2] == player &&
+                Board[r+3][c+3] == player) {
                 return 1;
             }
         }
     }
     for (int r = 0; r <= ROWS - 4; r++) {
         for (int c = 3; c < COLS; c++) {
-            if (board[r][c] == symbol &&
-                board[r+1][c-1] == symbol &&
-                board[r+2][c-2] == symbol &&
-                board[r+3][c-3] == symbol) {
+            if (Board[r][c] == player &&
+                Board[r+1][c-1] == player &&
+                Board[r+2][c-2] == player &&
+                Board[r+3][c-3] == player) {
                 return 1;
             }
         }
     }
     return 0;
 }
+
 int FullBoard(){
     for(int i=0; i<COLS; i++){
         if(DiscsPerIndex[i]<ROWS){
@@ -261,7 +381,7 @@ int FullBoard(){
     return 1;
 }
 
-void SwitchPlayer(char *currentPlayer, char playerA, char playerB){
-    *currentPlayer = (*currentPlayer == playerA) ? playerB : playerA;
+void SwitchPlayer(){
+    currentPlayer = (currentPlayer == playerA) ? playerB : playerA;
 }
 

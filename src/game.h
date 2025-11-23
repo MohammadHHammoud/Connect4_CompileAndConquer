@@ -6,7 +6,6 @@
 extern char Board[ROWS][COLS];
 
 extern int DiscsPerIndex[COLS];
-
 extern char playerA;
 extern char playerB;
 extern int colorA;
@@ -22,14 +21,14 @@ void initializeBoard();
 
 void Display();
 
-int MakeMove(char b[ROWS][COLS], int col);
+int MakeMove(int col);
 
-int MakeMoveAI(char b[ROWS][COLS], int difficulty);
+int MakeMoveAI();
 
-int CheckWin(char b[ROWS][COLS], char symbol);
+int CheckWin(char player);
 
 int FullBoard();
 
-void SwitchPlayer(char *currentPlayer, char playerA, char playerB);
+void SwitchPlayer();
 
 #endif
