@@ -22,7 +22,7 @@ int main(){
         } else {
         printf("Player %c, choose a column (1-7): ", currentPlayer);
         int col;
-        scanf("%d", &col);
+        int h=scanf("%d", &col);
         int row = MakeMove(col - 1);
         if (row == -1){
             printf("Invalid column.\n");

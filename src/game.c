@@ -20,27 +20,22 @@ void InitializeGame(){
     printf("Welcome to Connect Four!\n   1) Multiplayer\n   2) Single Player\nSelect an option [1-2]:");
     int option;
     int s = scanf("%d", &option);
-    while (s==0)
-    {
-        printf("Please input a valid number: ");
-        s = scanf("%d", &option);
-    }
     
     while(option != 1 && option != 2){
-        printf("Invalid option. Please select 1 or 2: ");
-        scanf("%d", &option);
+        s=printf("Invalid option. Please select 1 or 2: ");
+        s=scanf("%d", &option);
     }
     if(option == 1){
     printf("Player A: " );
-    scanf(" %c", &playerA);
+    s=scanf(" %c", &playerA);
     playerA = toupper(playerA);
     printf("Choose a color for player %c :\n", playerA);
     printf("  1) White\n  \033[1;31m2) Red \033[0m\n  \033[1;32m3) Green \033[0m\n  \033[1;34m4) Blue \033[0m\n  \033[1;33m5) Yellow \033[0m\n  \033[1;35m6) Magenta \033[0m\n  \033[1;36m7) Cyan \033[0m\nSelect a number (1-7): ");
     int choiceA;
-    scanf("%d", &choiceA);
+    s=scanf("%d", &choiceA);
     while(choiceA < 1 || choiceA > 7){
         printf("Invalid input. Please select a number from 1 to 7:");
-        scanf("%d", &choiceA);
+        s=scanf("%d", &choiceA);
     }
     switch (choiceA){
         case 1: colorA = 37; break;
@@ -53,20 +48,20 @@ void InitializeGame(){
         default: colorA = 37; break;
     }
     printf("Player B: " );
-    scanf(" %c", &playerB);
+    s=scanf(" %c", &playerB);
     playerB = toupper(playerB);
     while(playerA == playerB){
         printf("Player B cannot be the same as Player A.\nEnter again: ");
-        scanf(" %c", &playerB);
+        s=scanf(" %c", &playerB);
         playerB = toupper(playerB);
     }
     printf("Choose a color for player %c :\n", playerB);
     printf("  1) White\n  \033[1;31m2) Red \033[0m\n  \033[1;32m3) Green \033[0m\n  \033[1;34m4) Blue \033[0m\n  \033[1;33m5) Yellow \033[0m\n  \033[1;35m6) Magenta \033[0m\n  \033[1;36m7) Cyan \033[0m\nSelect a number (1-7): ");
     int choiceB;
-    scanf("%d", &choiceB);
+    s=scanf("%d", &choiceB);
     while(choiceB < 1 || choiceB > 7){
         printf("Invalid input. Please select a number from 1 to 7:");
-        scanf("%d", &choiceB);
+        s=scanf("%d", &choiceB);
     }
     switch (choiceB){
         case 1: colorB = 37; break;
@@ -84,25 +79,25 @@ void InitializeGame(){
         playerB = '@';
         printf("Difficulty Levels:\n    1) Easy\n    2) Medium\n    3) Hard\nSelect a difficulty level [1-3]: ");
         int dif;
-        scanf("%d", &dif);
+        s=scanf("%d", &dif);
         while(dif < 1 || dif > 3){
             printf("Invalid option. Please select a difficulty level [1-3]: ");
-            scanf("%d", &dif);
+            s=scanf("%d", &dif);
         }
         if(dif==1) colorB=34;
         else if(dif==2) colorB=32;
         else if(dif==3) colorB=31;
         difficulty = dif;
         printf("Enter your preferred character: ");
-        scanf(" %c", &playerA);
+        s=scanf(" %c", &playerA);
         playerA = toupper(playerA);
         int choice;
         printf("Choose your color:\n  1) White\n  \033[1;31m2) Red \033[0m\n  \033[1;32m3) Green \033[0m\n  \033[1;34m4) Blue \033[0m\n  \033[1;33m5) Yellow \033[0m\n  \033[1;35m6) Magenta \033[0m\n  \033[1;36m7) Cyan \033[0m\n");
         printf("Select a number (1-7): ");
-        scanf("%d", &choice);
+        s=scanf("%d", &choice);
         while(choice < 1 || choice > 7){
             printf("Invalid input. Please select a number from 1 to 7:");
-            scanf("%d", &choice);
+            s=scanf("%d", &choice);
         }
         switch (choice){
         case 1: colorA = 37; break;
